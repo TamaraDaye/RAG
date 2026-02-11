@@ -1,6 +1,13 @@
 #!/usr/bin/env python3
 import argparse
-from lib.keyword_search import search_command, build_command, tf_command, idf_command
+from lib.keyword_search import (
+    bm25_idf_command,
+    search_command,
+    build_command,
+    tf_command,
+    idf_command,
+    tf_idf_command,
+)
 
 
 def main() -> None:
@@ -26,6 +33,20 @@ def main() -> None:
 
     idf_parser.add_argument("term", type=str, help="Search term to calculate its idf")
 
+    tf_idf_parser = subparsers.add_parser("tfidf", help="Prints tfidf of given term")
+
+    tf_idf_parser.add_argument("id", type=int, help="Document id")
+
+    tf_idf_parser.add_argument("term", type=str, help="term to obtain tf_idf score")
+
+    bm25_idf_parser = subparsers.add_parser(
+        "bm25idf", help="Prints the inverse document frequency of a term"
+    )
+
+    bm25_idf_parser.add_argument(
+        "term", type=str, help="Search term to calculate its bm_25_idf"
+    )
+
     args = parser.parse_args()
 
     match args.command:
@@ -42,6 +63,16 @@ def main() -> None:
         case "idf":
             idf = idf_command(args.term)
             print(f"Inverse document frequency of '{args.term}': {idf:.2f}")
+
+        case "tfidf":
+            tf_idf = tf_idf_command(args.id, args.term)
+            print(
+                f"TF-IDF score of '{args.term}' in document '{args.id}': {tf_idf:.2f}"
+            )
+
+        case "bm25idf":
+            bm25_idf = bm25_idf_command(args.term)
+            print(f"BM25 IDF score of '{args.term}': {bm25_idf:.2f}")
 
 
 if __name__ == "__main__":

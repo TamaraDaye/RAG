@@ -69,7 +69,7 @@ class InvertedIndex:
             term(str): This is a token
 
         Returns:
-            This checks the index for the token and returns the set of document ids this particular token occurs
+            returns the set of document ids this particular token occurs
         """
         return sorted(list(self.index[term]))
 
@@ -88,6 +88,21 @@ class InvertedIndex:
         total_doc_count = len(self.docmap)
         term_match_count = len(self.index[token[0]])
         return math.log((total_doc_count + 1) / (term_match_count + 1))
+
+    def get_tf_idf(self, doc_id: int, term: str):
+        token = tokenize_text(term)
+        return self.get_idf(token[0]) * self.get_tf(doc_id, term)
+
+    def get_bm25idf(self, term: str) -> float:
+        token = tokenize_text(term)
+
+        if len(token) != 1:
+            raise ValueError("Too much args")
+
+        N = len(self.docmap)
+        df = len(self.index[token[0]])
+
+        return math.log((N - df + 0.5) / (df + 0.5) + 1)
 
     def build(self):
         """Build the index from the input database"""
@@ -181,19 +196,28 @@ def search_command(query: str, n: int = 5) -> List[Dict[str, int | str]]:  # pyr
                 return res
 
 
+idx = InvertedIndex()
+idx.load()
+
+
 def build_command():
-    data_index = InvertedIndex()
-    data_index.build()
-    data_index.save()
+    idx.build()
+    idx.save()
 
 
 def tf_command(doc_id: int, term: str) -> int:
-    idx = InvertedIndex()
-    idx.load()
     return idx.get_tf(doc_id, term)
 
 
 def idf_command(term: str) -> float:
-    idx = InvertedIndex()
-    idx.load()
     return idx.get_idf(term)
+
+
+def tf_idf_command(doc_id: int, term: str) -> float:
+    tf_idf = idx.get_tf_idf(doc_id, term)
+    return tf_idf
+
+
+def bm25_idf_command(term: str) -> float:
+    bm25_idf = idx.get_bm25idf(term)
+    return bm25_idf
