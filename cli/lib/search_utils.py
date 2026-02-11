@@ -1,12 +1,11 @@
 import json
 from pathlib import Path
-import string
 
 ROOT = Path(__file__).resolve().parents[2]
 
 DATA_PATH = ROOT / "data"
 
-print(DATA_PATH, ROOT)
+CACHE_PATH = ROOT / "cache"
 
 
 def load_data():
